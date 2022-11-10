@@ -6,13 +6,16 @@ import nz.sodium.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /** 
  * An example of how to use the GpsService class
  */
 public class GpsGui {
-    List<Cell<String>> trackers = new ArrayList<Cell<String>>();
+    static List<Cell<String>> trackers = new ArrayList<Cell<String>>();
     static List<JLabel> namesOfTrackers = new ArrayList<JLabel>();
+    static List<Timer> timers = new ArrayList<Timer>(10);
 
     public static void main(String[] args){
         JFrame frame = new JFrame("GPS GUI");
@@ -34,6 +37,11 @@ public class GpsGui {
         JPanel display8 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         JPanel display9 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
 
+        // initialise timers
+        for(int i = 0; i<10; i++){
+            timers.add(new Timer());
+        }
+
         // Initialise the GPS Service
         GpsService serv = new GpsService();
         // Retrieve Event Streams
@@ -41,8 +49,14 @@ public class GpsGui {
         // Attach a handler method to each stream
         for(Stream<GpsEvent> s : streams){
             s.listen((GpsEvent ev) -> System.out.println(ev));
-            
+            s.listen((GpsEvent ev) -> VisibilityTimer(ev.name));
         }
+
+        // map each event to a string that says its lat and long
+        for(int i = 0; i<10; i++){
+            trackers.add(streams[i].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold(""));
+        }
+
 
         Cell<String> tracker0 = streams[0].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
         Cell<String> tracker1 = streams[1].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
@@ -54,7 +68,7 @@ public class GpsGui {
         Cell<String> tracker7 = streams[7].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
         Cell<String> tracker8 = streams[8].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
         Cell<String> tracker9 = streams[9].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        SLabel label0 = new SLabel(tracker0);
+        SLabel label0 = new SLabel(trackers.get(0));
         SLabel label1 = new SLabel(tracker1);
         SLabel label2 = new SLabel(tracker2);
         SLabel label3 = new SLabel(tracker3);
@@ -115,8 +129,22 @@ public class GpsGui {
         frame.add(panel);
         frame.setSize(700, 1000);
         frame.setVisible(true);
-
-        
     }
 
+    static void VisibilityTimer(String tracker){
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Updated timer");
+            }
+        };
+        if (tracker.equals("Tracker0")){
+            System.out.println("run this");
+            timers.get(0).cancel();
+            timers.get(0).purge();
+            timers.set(0, new Timer());
+            timers.get(0).schedule(timerTask, 3000);
+        }
+    }
 } 
