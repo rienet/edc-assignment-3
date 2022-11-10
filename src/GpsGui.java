@@ -45,15 +45,15 @@ public class GpsGui {
         }
 
         Cell<String> tracker0 = streams[0].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker1 = streams[1].map(u -> u.toString()).hold("");
-        Cell<String> tracker2 = streams[2].map(u -> u.toString()).hold("");
-        Cell<String> tracker3 = streams[3].map(u -> u.toString()).hold("");
-        Cell<String> tracker4 = streams[4].map(u -> u.toString()).hold("");
-        Cell<String> tracker5 = streams[5].map(u -> u.toString()).hold("");
-        Cell<String> tracker6 = streams[6].map(u -> u.toString()).hold("");
-        Cell<String> tracker7 = streams[7].map(u -> u.toString()).hold("");
-        Cell<String> tracker8 = streams[8].map(u -> u.toString()).hold("");
-        Cell<String> tracker9 = streams[9].map(u -> u.toString()).hold("");
+        Cell<String> tracker1 = streams[1].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker2 = streams[2].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker3 = streams[3].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker4 = streams[4].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker5 = streams[5].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker6 = streams[6].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker7 = streams[7].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker8 = streams[8].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
+        Cell<String> tracker9 = streams[9].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
         SLabel label0 = new SLabel(tracker0);
         SLabel label1 = new SLabel(tracker1);
         SLabel label2 = new SLabel(tracker2);
