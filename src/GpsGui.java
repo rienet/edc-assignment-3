@@ -20,6 +20,9 @@ public class GpsGui {
     static List<Timer> timers = new ArrayList<Timer>(10);
     static List<StreamSink<String>> timersStream = new ArrayList<StreamSink<String>>();
     static List<Stream<String>> bufferLatest = new ArrayList<Stream<String>>();
+    static List<Stream<String>> combinedFilter = new ArrayList<Stream<String>>();
+    static Timer filterFieldTimer = new Timer();
+    static StreamSink<String> filterTimerSink = new StreamSink<>();
 
     public static void main(String[] args){
         JFrame frame = new JFrame("GPS GUI");
@@ -85,7 +88,7 @@ public class GpsGui {
         JLabel latestName = new JLabel("Latest Events");
         for(int i = 0; i<10; i++){
             // initialise sinks to add timer events into
-            timersStream.add(new StreamSink<>());
+            // timersStream.add(new StreamSink<>());
             // map each event to a string that says its lat and long
             Stream<String> eventbuffer = streams[i].map(u -> u.name + ", " + u.latitude + ", "
             + u.longitude + ", " + u.altitude);
@@ -96,16 +99,18 @@ public class GpsGui {
         // combines all streams into one
         Stream<String> latestEvents = Stream.orElse(bufferLatest);
         STextField latestText = new STextField(latestEvents, "");
-        latestText.setColumns(50);
+        latestText.setColumns(30);
         // display time on the side
         SLabel latestTime = new SLabel(latestEvents.map(u -> java.time.LocalTime.now().toString()).hold("") );
 
         // create frp thing for gps filtering
+        // create labels and text field and a button for filtering
         JLabel latName = new JLabel("Max Lat:");
         STextField latField = new STextField("90");
-        JLabel longName = new JLabel("Max Lat:");
+        JLabel longName = new JLabel("Max Long:");
         STextField longField = new STextField("180");
         SButton setter = new SButton("Set");
+        // snapshot values in text field and store them as hashmap kv pair
         Stream<HashMap<String, String>> newSets =
             setter.sClicked.snapshot(latField.text, longField.text, (u, lat, longs) -> {
                 HashMap<String,String> x = new HashMap<String, String>();
@@ -113,12 +118,41 @@ public class GpsGui {
                 x.put("long", longs.toString());
                 return x;
             });
+        // retrieve lat/longs and put in cells
         Cell<String> latOut = newSets.map(u -> u.get("lat")).hold("");
         Cell<String> longOut = newSets.map(u -> u.get("long")).hold("");
         SLabel currentLat = new SLabel(latOut);
         SLabel currentLong = new SLabel(longOut);
+        // initialise current starting fitlers
+        currentLat.setText("90");
+        currentLong.setText("180");
 
-        // SLabel currentMax = 
+        // create new area to show filtered tracker info
+        JLabel filteredName = new JLabel("Filtered Events");
+        
+        // borrow stream from part 2
+        for(int i = 0; i<10; i++){
+            // filter from the start, since orelse() may drop some valid events
+            Stream<GpsEvent> filteredStream = streams[i].filter(ev -> ev.latitude <= 
+            Double.valueOf(currentLat.getText()) && ev.longitude <= Double.valueOf(currentLong.getText()) );
+            // use map and merge primitives as normal
+            Stream<String> combiner = filteredStream.map(u -> u.name + ", " + u.latitude + ", "
+            + u.longitude + ", " + u.altitude);
+            // merge streams from timer and the gps together
+            combinedFilter.add(combiner);
+        }
+        
+        combinedFilter.get(0);
+        // combines all streams into one
+        Stream<String> combiner2 = combinedFilter.get(0).orElse(combinedFilter);
+
+        combiner2.listen((String ev) -> SinglesTimer(ev.substring(0, 8)));
+        combiner2 = combiner2.orElse(filterTimerSink);
+
+        STextField filtertexter = new STextField(combiner2, "");
+        filtertexter.setColumns(30);
+        // display time on the side
+        SLabel filterTime = new SLabel(combiner2.map(u -> java.time.LocalTime.now().toString()).hold("") );
 
         // create name label for each tracker
         for(int i = 0; i<10; i++){
@@ -160,6 +194,9 @@ public class GpsGui {
         filterSettings.add(longField);
         filterSettings.add(currentLong);
         filterSettings.add(setter);
+        filterSettings.add(filteredName);
+        filterSettings.add(filtertexter);
+        filterSettings.add(filterTime);
         
         panel.add(display0);
         panel.add(Box.createVerticalGlue());
@@ -195,7 +232,8 @@ public class GpsGui {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                timersStream.get(0).send("empty    time: " + java.time.LocalTime.now());
+                int tindex = Integer.valueOf(tracker.substring(7, 8));
+                timersStream.get(tindex).send("empty    time: " + java.time.LocalTime.now());
             }
         };
         // yea this could be better but idc anymore
@@ -269,5 +307,18 @@ public class GpsGui {
             timers.set(9, new Timer());
             timers.get(9).schedule(timerTask, 3000);
         }
+    }
+
+    static void SinglesTimer(String tracker){
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                filterTimerSink.send("empty (filter)    time: " + java.time.LocalTime.now());
+            }
+        };
+        filterFieldTimer.cancel();
+        filterFieldTimer.purge();
+        filterFieldTimer = new Timer();
+        filterFieldTimer.schedule(timerTask, 3000);
     }
 } 
