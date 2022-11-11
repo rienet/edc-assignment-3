@@ -53,14 +53,13 @@ public class GpsGui {
             s.listen((GpsEvent ev) -> VisibilityTimer(ev.name));
         }
 
-        // map each event to a string that says its lat and long
+        // loop over stuff???
         for(int i = 0; i<10; i++){
+            // initialise sinks to add timer events into
             timersStream.add(new StreamSink<>());
-            trackers.add(streams[i].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold(""));
-        }
-
-        for(StreamSink<String> s : timersStream){
-            s.listen((message-> System.out.println(message)));
+            // map each event to a string that says its lat and long
+            Stream<String> eventbuffer = streams[i].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude);
+            trackers.add(eventbuffer.hold(""));
         }
 
         SLabel label0 = new SLabel(trackers.get(0));
