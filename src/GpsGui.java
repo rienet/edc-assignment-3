@@ -16,6 +16,7 @@ public class GpsGui {
     static List<Cell<String>> trackers = new ArrayList<Cell<String>>();
     static List<JLabel> namesOfTrackers = new ArrayList<JLabel>();
     static List<Timer> timers = new ArrayList<Timer>(10);
+    static List<StreamSink<String>> timersStream = new ArrayList<StreamSink<String>>();
 
     public static void main(String[] args){
         JFrame frame = new JFrame("GPS GUI");
@@ -54,30 +55,24 @@ public class GpsGui {
 
         // map each event to a string that says its lat and long
         for(int i = 0; i<10; i++){
+            timersStream.add(new StreamSink<>());
             trackers.add(streams[i].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold(""));
         }
 
+        for(StreamSink<String> s : timersStream){
+            s.listen((message-> System.out.println(message)));
+        }
 
-        Cell<String> tracker0 = streams[0].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker1 = streams[1].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker2 = streams[2].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker3 = streams[3].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker4 = streams[4].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker5 = streams[5].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker6 = streams[6].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker7 = streams[7].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker8 = streams[8].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
-        Cell<String> tracker9 = streams[9].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude).hold("");
         SLabel label0 = new SLabel(trackers.get(0));
-        SLabel label1 = new SLabel(tracker1);
-        SLabel label2 = new SLabel(tracker2);
-        SLabel label3 = new SLabel(tracker3);
-        SLabel label4 = new SLabel(tracker4);
-        SLabel label5 = new SLabel(tracker5);
-        SLabel label6 = new SLabel(tracker6);
-        SLabel label7 = new SLabel(tracker7);
-        SLabel label8 = new SLabel(tracker8);
-        SLabel label9 = new SLabel(tracker9);
+        SLabel label1 = new SLabel(trackers.get(1));
+        SLabel label2 = new SLabel(trackers.get(2));
+        SLabel label3 = new SLabel(trackers.get(3));
+        SLabel label4 = new SLabel(trackers.get(4));
+        SLabel label5 = new SLabel(trackers.get(5));
+        SLabel label6 = new SLabel(trackers.get(6));
+        SLabel label7 = new SLabel(trackers.get(7));
+        SLabel label8 = new SLabel(trackers.get(8));
+        SLabel label9 = new SLabel(trackers.get(9));
 
         // create name label for each tracker
         for(int i = 0; i<10; i++){
@@ -136,7 +131,7 @@ public class GpsGui {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                System.out.println("Updated timer");
+                timersStream.get(0).send("empty");
             }
         };
         if (tracker.equals("Tracker0")){
