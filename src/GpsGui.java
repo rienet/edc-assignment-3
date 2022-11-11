@@ -198,12 +198,76 @@ public class GpsGui {
                 timersStream.get(0).send("empty    time: " + java.time.LocalTime.now());
             }
         };
+        // yea this could be better but idc anymore
         if (tracker.equals("Tracker0")){
             System.out.println("run this");
             timers.get(0).cancel();
             timers.get(0).purge();
             timers.set(0, new Timer());
             timers.get(0).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker1")){
+            System.out.println("run this");
+            timers.get(1).cancel();
+            timers.get(1).purge();
+            timers.set(1, new Timer());
+            timers.get(1).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker2")){
+            System.out.println("run this");
+            timers.get(2).cancel();
+            timers.get(2).purge();
+            timers.set(2, new Timer());
+            timers.get(2).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker3")){
+            System.out.println("run this");
+            timers.get(3).cancel();
+            timers.get(3).purge();
+            timers.set(3, new Timer());
+            timers.get(3).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker4")){
+            System.out.println("run this");
+            timers.get(4).cancel();
+            timers.get(4).purge();
+            timers.set(4, new Timer());
+            timers.get(4).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker5")){
+            System.out.println("run this");
+            timers.get(5).cancel();
+            timers.get(5).purge();
+            timers.set(5, new Timer());
+            timers.get(5).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker6")){
+            System.out.println("run this");
+            timers.get(6).cancel();
+            timers.get(6).purge();
+            timers.set(6, new Timer());
+            timers.get(6).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker7")){
+            System.out.println("run this");
+            timers.get(7).cancel();
+            timers.get(7).purge();
+            timers.set(7, new Timer());
+            timers.get(7).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker8")){
+            System.out.println("run this");
+            timers.get(8).cancel();
+            timers.get(8).purge();
+            timers.set(8, new Timer());
+            timers.get(8).schedule(timerTask, 3000);
+        }
+        if (tracker.equals("Tracker9")){
+            System.out.println("run this");
+            timers.get(9).cancel();
+            timers.get(9).purge();
+            timers.set(9, new Timer());
+            timers.get(9).schedule(timerTask, 3000);
         }
     }
 } 
