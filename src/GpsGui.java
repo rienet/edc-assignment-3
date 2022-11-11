@@ -19,6 +19,7 @@ public class GpsGui {
     static List<JLabel> namesOfTrackers = new ArrayList<JLabel>();
     static List<Timer> timers = new ArrayList<Timer>(10);
     static List<StreamSink<String>> timersStream = new ArrayList<StreamSink<String>>();
+    static List<Stream<String>> bufferLatest = new ArrayList<Stream<String>>();
 
     public static void main(String[] args){
         JFrame frame = new JFrame("GPS GUI");
@@ -39,6 +40,8 @@ public class GpsGui {
         JPanel display7 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         JPanel display8 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         JPanel display9 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
+        JPanel singleDisplay = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JPanel filterSettings = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
         // initialise timers
         for(int i = 0; i<10; i++){
@@ -61,11 +64,12 @@ public class GpsGui {
             timersStream.add(new StreamSink<>());
             // map each event to a string that says its lat and long
             Stream<String> eventbuffer = streams[i].map(u -> "lat: "+ u.latitude + "    long: " + 
-            u.longitude + "    time: " + java.time.LocalTime.now());
+            u.longitude);
             // merge streams from timer and the gps together
             trackers.add(eventbuffer.orElse(timersStream.get(i)).hold(""));
         }
 
+        // labels for each tracker
         SLabel label0 = new SLabel(trackers.get(0));
         SLabel label1 = new SLabel(trackers.get(1));
         SLabel label2 = new SLabel(trackers.get(2));
@@ -76,6 +80,24 @@ public class GpsGui {
         SLabel label7 = new SLabel(trackers.get(7));
         SLabel label8 = new SLabel(trackers.get(8));
         SLabel label9 = new SLabel(trackers.get(9));
+
+        // create display for latest event
+        JLabel latestName = new JLabel("Latest Events");
+        for(int i = 0; i<10; i++){
+            // initialise sinks to add timer events into
+            timersStream.add(new StreamSink<>());
+            // map each event to a string that says its lat and long
+            Stream<String> eventbuffer = streams[i].map(u -> u.name + ", " + u.latitude + ", "
+            + u.longitude + ", " + u.altitude);
+            // merge streams from timer and the gps together
+            bufferLatest.add(eventbuffer.orElse(timersStream.get(i)));
+        }
+        bufferLatest.get(0);
+        Stream<String> latestEvents = Stream.orElse(bufferLatest);
+        STextField latestText = new STextField(latestEvents, "");
+        latestText.setColumns(50);
+        SLabel latestTime = new SLabel(latestEvents.map(u -> java.time.LocalTime.now().toString()).hold("") );
+
 
         // create name label for each tracker
         for(int i = 0; i<10; i++){
@@ -103,6 +125,11 @@ public class GpsGui {
         display7.add(label7);
         display8.add(label8);
         display9.add(label9);
+
+        // display latest events
+        singleDisplay.add(latestName);
+        singleDisplay.add(latestText);
+        singleDisplay.add(latestTime);
         
         panel.add(display0);
         panel.add(Box.createVerticalGlue());
@@ -124,6 +151,8 @@ public class GpsGui {
         panel.add(Box.createVerticalGlue());
         panel.add(display9);
         panel.add(Box.createVerticalGlue());
+        panel.add(singleDisplay);
+        
         frame.add(panel);
         frame.setSize(700, 1000);
         frame.setVisible(true);
