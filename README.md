@@ -1,4 +1,4 @@
-# edc-assignment-3
+# edc-assignment-3 / (extension approved)
 
 Make sure you're in root directory of project before running/compiling (e.g NOT in /lib or /src).
 
