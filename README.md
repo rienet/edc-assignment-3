@@ -7,3 +7,7 @@ Compile code using
 
 Run code using
 `java -cp "src;lib\sodium.jar;lib\swidgets.jar" GpsGui`
+
+This project assumes JRE 16+, as the sodium.jar and swidgets.jar provided on MyUni required this.
+
+Filter display and system logs might be a bit buggy, so press the 'Set' button with any lat/long value to clear errors.
