@@ -41,7 +41,7 @@ public class GpsGui {
         JPanel display8 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         JPanel display9 = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         JPanel singleDisplay = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JPanel filterSettings = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JPanel filterSettings = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
 
         // initialise timers
         for(int i = 0; i<10; i++){
@@ -93,11 +93,32 @@ public class GpsGui {
             bufferLatest.add(eventbuffer.orElse(timersStream.get(i)));
         }
         bufferLatest.get(0);
+        // combines all streams into one
         Stream<String> latestEvents = Stream.orElse(bufferLatest);
         STextField latestText = new STextField(latestEvents, "");
         latestText.setColumns(50);
+        // display time on the side
         SLabel latestTime = new SLabel(latestEvents.map(u -> java.time.LocalTime.now().toString()).hold("") );
 
+        // create frp thing for gps filtering
+        JLabel latName = new JLabel("Max Lat:");
+        STextField latField = new STextField("90");
+        JLabel longName = new JLabel("Max Lat:");
+        STextField longField = new STextField("180");
+        SButton setter = new SButton("Set");
+        Stream<HashMap<String, String>> newSets =
+            setter.sClicked.snapshot(latField.text, longField.text, (u, lat, longs) -> {
+                HashMap<String,String> x = new HashMap<String, String>();
+                x.put("lat", lat.toString());
+                x.put("long", longs.toString());
+                return x;
+            });
+        Cell<String> latOut = newSets.map(u -> u.get("lat")).hold("");
+        Cell<String> longOut = newSets.map(u -> u.get("long")).hold("");
+        SLabel currentLat = new SLabel(latOut);
+        SLabel currentLong = new SLabel(longOut);
+
+        // SLabel currentMax = 
 
         // create name label for each tracker
         for(int i = 0; i<10; i++){
@@ -130,6 +151,15 @@ public class GpsGui {
         singleDisplay.add(latestName);
         singleDisplay.add(latestText);
         singleDisplay.add(latestTime);
+
+        // display gps filters
+        filterSettings.add(latName);
+        filterSettings.add(latField);
+        filterSettings.add(currentLat);
+        filterSettings.add(longName);
+        filterSettings.add(longField);
+        filterSettings.add(currentLong);
+        filterSettings.add(setter);
         
         panel.add(display0);
         panel.add(Box.createVerticalGlue());
@@ -152,6 +182,8 @@ public class GpsGui {
         panel.add(display9);
         panel.add(Box.createVerticalGlue());
         panel.add(singleDisplay);
+        panel.add(Box.createVerticalGlue());
+        panel.add(filterSettings);
         
         frame.add(panel);
         frame.setSize(700, 1000);
