@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;
 
 /** 
  * An example of how to use the GpsService class
@@ -58,8 +60,10 @@ public class GpsGui {
             // initialise sinks to add timer events into
             timersStream.add(new StreamSink<>());
             // map each event to a string that says its lat and long
-            Stream<String> eventbuffer = streams[i].map(u -> "lat: "+ u.latitude + "    long: " + u.longitude);
-            trackers.add(eventbuffer.hold(""));
+            Stream<String> eventbuffer = streams[i].map(u -> "lat: "+ u.latitude + "    long: " + 
+            u.longitude + "    time: " + java.time.LocalTime.now());
+            // merge streams from timer and the gps together
+            trackers.add(eventbuffer.orElse(timersStream.get(i)).hold(""));
         }
 
         SLabel label0 = new SLabel(trackers.get(0));
@@ -130,7 +134,7 @@ public class GpsGui {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                timersStream.get(0).send("empty");
+                timersStream.get(0).send("empty    time: " + java.time.LocalTime.now());
             }
         };
         if (tracker.equals("Tracker0")){
